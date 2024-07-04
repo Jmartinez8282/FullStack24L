@@ -134,3 +134,4 @@
 /Users/jmartinezlopez/Desktop/FullStack24L/API/obj/Debug/net9.0/API.pdb
 /Users/jmartinezlopez/Desktop/FullStack24L/API/obj/Debug/net9.0/API.genruntimeconfig.cache
 /Users/jmartinezlopez/Desktop/FullStack24L/API/obj/Debug/net9.0/ref/API.dll
+/Users/jmartinezlopez/Desktop/FullStack24L/API/obj/Debug/net9.0/API.sourcelink.json
