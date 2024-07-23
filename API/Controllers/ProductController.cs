@@ -19,6 +19,7 @@ public class ProductController : ControllerBase
     {
         _context = context;
     }
+    
 
     [HttpGet]
     public async Task<IActionResult> Products()
