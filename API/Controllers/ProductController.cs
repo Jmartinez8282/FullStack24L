@@ -24,6 +24,7 @@ public class ProductController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Products()
     {
+        await Task.Delay(4000);
         return Ok(await _context.Products.AsNoTracking().ToListAsync());
     }
 
