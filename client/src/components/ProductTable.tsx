@@ -6,16 +6,15 @@ import {
   Heading,
   HStack,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
-  Tfoot,
   Th,
   Thead,
   Tr,
   Text,
-  Badge
+  Badge,
+  useDisclosure,
 } from "@chakra-ui/react";
 import ColorModeSwitch from "./ColorModeSwitch";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
@@ -23,6 +22,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../constant";
 import ProductSkeleton from "./ProductSkeleton";
+import ProductForm from "./ProductForm";
 
 interface Product {
   id: number;
@@ -33,6 +33,9 @@ interface Product {
 }
 
 const ProductTable = () => {
+
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
   //UseStates
   const [data, setData] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -42,7 +45,7 @@ const ProductTable = () => {
   const fetchData = () => {
     setIsLoading(true);
     axios
-      .get(BASE_URL+"Product")
+      .get(BASE_URL + "Product")
       .then((response) => {
         setData(response.data);
       })
@@ -59,7 +62,7 @@ const ProductTable = () => {
     fetchData();
   }, []);
 
-  if(isLoading) return <ProductSkeleton/>
+  if (isLoading) return <ProductSkeleton />;
 
   return (
     <>
@@ -67,7 +70,7 @@ const ProductTable = () => {
       <Box m={32} shadow={"md"} rounded={"md"}>
         <Flex justifyContent={"space-between"} px={"5"}>
           <Heading fontSize={25}>Product List</Heading>
-          <Button color="teal.300" leftIcon={<AddIcon />}>
+          <Button onClick={onOpen} color="teal.300" leftIcon={<AddIcon />}>
             {" "}
             Add Product
           </Button>
@@ -75,7 +78,6 @@ const ProductTable = () => {
 
         <TableContainer>
           <Table variant="striped" colorScheme="teal">
-          
             <Thead>
               <Tr>
                 <Th>Id</Th>
@@ -91,32 +93,34 @@ const ProductTable = () => {
                   <Td>{product.id}</Td>
                   <Td>
                     <HStack>
-                      <Avatar size={'sm'} name={product.name}/>
+                      <Avatar size={"sm"} name={product.name} />
                       <Text>{product.name}</Text>
                     </HStack>
                   </Td>
 
-                
                   <Td>{product.description}</Td>
                   <Td>
-
-                    <Badge>{product.isInStore ? "Yes": "No"}</Badge>
+                    <Badge>{product.isInStore ? "Yes" : "No"}</Badge>
                   </Td>
                   <Td>{product.price}</Td>
                   <Td>
                     <HStack>
-                      <EditIcon boxSize={23} color={"orange.200"}/>
-                      <DeleteIcon boxSize={23} color={"red.400"}/>
-                      <ViewIcon boxSize={23} color={"green.300"}/>
+                      <EditIcon boxSize={23} color={"orange.200"} />
+                      <DeleteIcon boxSize={23} color={"red.400"} />
+                      <ViewIcon boxSize={23} color={"green.300"} />
                     </HStack>
                   </Td>
                 </Tr>
               ))}
             </Tbody>
-            
           </Table>
         </TableContainer>
-        {data.length == 0 &&  <Heading p={5} textAlign={'center'} fontSize={24}>No Data</Heading>}
+        {data.length == 0 && (
+          <Heading p={5} textAlign={"center"} fontSize={24}>
+            No Data
+          </Heading>
+        )}
+        {isOpen && <ProductForm fetchProduct={fetchData} isOpen={isOpen} onClose={onClose} /> }
       </Box>
     </>
   );
