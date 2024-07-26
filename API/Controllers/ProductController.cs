@@ -60,7 +60,7 @@ public class ProductController : ControllerBase
 
     public async Task<IActionResult> UpdateProduct(int id, Product product)
     {
-        if(id == 0)
+        if(id != product.Id)
         {
             return BadRequest();
         }

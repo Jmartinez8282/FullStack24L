@@ -15,6 +15,15 @@ import {
   Text,
   Badge,
   useDisclosure,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  PopoverFooter,
+  useToast,
 } from "@chakra-ui/react";
 import ColorModeSwitch from "./ColorModeSwitch";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
@@ -24,24 +33,25 @@ import { BASE_URL } from "../constant";
 import ProductSkeleton from "./ProductSkeleton";
 import ProductForm from "./ProductForm";
 
-interface Product {
+export interface Product {
   id: number;
   name: string;
-  price: number;
+  price: string;
   description: string;
   isInStore: boolean;
 }
 
 const ProductTable = () => {
-
-
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure();
   //UseStates
+  const [currentData, setCurrentData] = useState<Product>({} as Product);
   const [data, setData] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
 
   //function to help us fetch our data with axios, handle our error
+
+  const toast = useToast();
   const fetchData = () => {
     setIsLoading(true);
     axios
@@ -62,7 +72,42 @@ const ProductTable = () => {
     fetchData();
   }, []);
 
+  const getProduct = (id: number) => {
+    axios
+      .get(BASE_URL + "Product/" + id)
+      .then((res) => {
+        setCurrentData(res.data);
+        onOpen();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   if (isLoading) return <ProductSkeleton />;
+
+  const handleAdd = () => {
+    onOpen();
+    setCurrentData({} as Product);
+  };
+
+
+    const handleDelete = (id:number) => {
+      axios.delete(BASE_URL+'Product/'+id)
+      .then(() => {
+        toast({
+          title: "Product Deleted.",
+          description: "Product Deleted",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        })
+        fetchData();
+      }).catch(error => {
+        console.log(error);
+        
+      })
+    }
 
   return (
     <>
@@ -70,7 +115,11 @@ const ProductTable = () => {
       <Box m={32} shadow={"md"} rounded={"md"}>
         <Flex justifyContent={"space-between"} px={"5"}>
           <Heading fontSize={25}>Product List</Heading>
-          <Button onClick={onOpen} color="teal.300" leftIcon={<AddIcon />}>
+          <Button
+            onClick={() => handleAdd()}
+            color="teal.300"
+            leftIcon={<AddIcon />}
+          >
             {" "}
             Add Product
           </Button>
@@ -105,8 +154,28 @@ const ProductTable = () => {
                   <Td>{product.price}</Td>
                   <Td>
                     <HStack>
-                      <EditIcon boxSize={23} color={"orange.200"} />
+                      <EditIcon
+                        onClick={() => getProduct(product.id)}
+                        boxSize={23}
+                        color={"orange.200"}
+                      />
+                      <Popover>
+                        <PopoverTrigger>
                       <DeleteIcon boxSize={23} color={"red.400"} />
+                        
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <PopoverArrow />
+                          <PopoverCloseButton />
+                          <PopoverHeader>Confirmation!</PopoverHeader>
+                          <PopoverBody>
+                            Are you sure you want to Delete?
+                          </PopoverBody>
+                          <PopoverFooter>
+                            <Button colorScheme="red" variant={"outline"} onClick={() => handleDelete(product.id)}>Delete</Button>
+                          </PopoverFooter>
+                        </PopoverContent>
+                      </Popover>
                       <ViewIcon boxSize={23} color={"green.300"} />
                     </HStack>
                   </Td>
@@ -120,7 +189,14 @@ const ProductTable = () => {
             No Data
           </Heading>
         )}
-        {isOpen && <ProductForm fetchProduct={fetchData} isOpen={isOpen} onClose={onClose} /> }
+        {isOpen && (
+          <ProductForm
+            currentData={currentData}
+            fetchProduct={fetchData}
+            isOpen={isOpen}
+            onClose={onClose}
+          />
+        )}
       </Box>
     </>
   );
