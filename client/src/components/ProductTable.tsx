@@ -32,6 +32,7 @@ import axios from "axios";
 import { BASE_URL } from "../constant";
 import ProductSkeleton from "./ProductSkeleton";
 import ProductForm from "./ProductForm";
+import ViewDetails from "./ViewDetails";
 
 export interface Product {
   id: number;
@@ -43,6 +44,8 @@ export interface Product {
 
 const ProductTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const { isOpen:viewDialogOpen, onOpen:onViewDialogOpen, onClose:onviewDialogClose} = useDisclosure()
   //UseStates
   const [currentData, setCurrentData] = useState<Product>({} as Product);
   const [data, setData] = useState<Product[]>([]);
@@ -77,6 +80,7 @@ const ProductTable = () => {
       .get(BASE_URL + "Product/" + id)
       .then((res) => {
         setCurrentData(res.data);
+        
         onOpen();
       })
       .catch((error) => {
@@ -103,6 +107,17 @@ const ProductTable = () => {
           isClosable: true,
         })
         fetchData();
+      }).catch(error => {
+        console.log(error);
+        
+      })
+    }
+
+    const handleViewDetail = (id:number) => {
+      axios.get<Product>(BASE_URL+"Product/"+id)
+      .then(res => {
+        setCurrentData(res.data)
+        onViewDialogOpen()
       }).catch(error => {
         console.log(error);
         
@@ -176,7 +191,7 @@ const ProductTable = () => {
                           </PopoverFooter>
                         </PopoverContent>
                       </Popover>
-                      <ViewIcon boxSize={23} color={"green.300"} />
+                      <ViewIcon onClick={() => handleViewDetail(product.id)} boxSize={23} color={"green.300"} />
                     </HStack>
                   </Td>
                 </Tr>
@@ -197,6 +212,8 @@ const ProductTable = () => {
             onClose={onClose}
           />
         )}
+
+        {viewDialogOpen && <ViewDetails isOpen={viewDialogOpen} onClose={onviewDialogClose} currentData={currentData}/>}
       </Box>
     </>
   );
